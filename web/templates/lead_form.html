@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}{% if lead %}Edit {{ lead.company_name }}{% else %}New Lead{% endif %} – Outreach CRM{% endblock %}
+
+{% block content %}
+{% if lead %}
+<a class="back-link" href="/leads/{{ lead.id }}">&larr; {{ lead.company_name }}</a>
+<h1>Edit Lead</h1>
+{% else %}
+<a class="back-link" href="/leads">&larr; All leads</a>
+<h1>New Lead</h1>
+{% endif %}
+
+<div class="form-card" style="max-width:680px">
+  <form method="post" action="{{ '/leads/' + lead.id|string + '/edit' if lead else '/leads/new' }}">
+
+    <div class="form-group">
+      <label for="company_name">Company name <span class="hint">*</span></label>
+      <input type="text" id="company_name" name="company_name" required
+             value="{{ lead.company_name if lead else '' }}" placeholder="Acme GmbH">
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="text" id="email" name="email"
+               value="{{ lead.email or '' if lead else '' }}" placeholder="info@acme.de">
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone</label>
+        <input type="text" id="phone" name="phone"
+               value="{{ lead.phone or '' if lead else '' }}" placeholder="+49 30 12345">
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+      <div class="form-group">
+        <label for="city">City</label>
+        <input type="text" id="city" name="city"
+               value="{{ lead.city or '' if lead else '' }}" placeholder="Berlin">
+      </div>
+      <div class="form-group">
+        <label for="category">Category</label>
+        <input type="text" id="category" name="category"
+               value="{{ lead.category or '' if lead else '' }}" placeholder="Sicherheitsdienste">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="website">Website</label>
+      <input type="text" id="website" name="website"
+             value="{{ lead.website or '' if lead else '' }}" placeholder="https://acme.de">
+    </div>
+
+    <div class="form-group">
+      <label for="source_url">Source URL</label>
+      <input type="text" id="source_url" name="source_url"
+             value="{{ lead.source_url or '' if lead else '' }}"
+             placeholder="https://branchenbuch.meinestadt.de/…">
+    </div>
+
+    {% if lead %}
+    <div class="form-group">
+      <label for="status">Status</label>
+      <select id="status" name="status">
+        {% for s in statuses %}
+        <option value="{{ s }}"{{ ' selected' if s == lead.status.value }}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    {% endif %}
+
+    <div class="form-group">
+      <label for="notes">Notes</label>
+      <textarea id="notes" name="notes" style="min-height:90px"
+                placeholder="Any notes…">{{ lead.notes or '' if lead else '' }}</textarea>
+    </div>
+
+    <div style="display:flex;gap:0.75rem;align-items:center">
+      <button type="submit" class="btn btn-primary">
+        {{ 'Save changes' if lead else 'Create lead' }}
+      </button>
+      <a href="{{ '/leads/' + lead.id|string if lead else '/leads' }}" class="btn btn-ghost">Cancel</a>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

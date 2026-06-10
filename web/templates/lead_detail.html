@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}{{ lead.company_name }} – Outreach CRM{% endblock %}
+
+{% block content %}
+<a class="back-link" href="/leads">&larr; All leads</a>
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.75rem">
+  <h1 style="margin-bottom:0">{{ lead.company_name }}</h1>
+  <div style="display:flex;gap:0.6rem">
+    <a href="/leads/{{ lead.id }}/edit" class="btn btn-ghost btn-sm">Edit</a>
+    <form method="post" action="/leads/{{ lead.id }}/delete"
+          onsubmit="return confirm('Delete {{ lead.company_name }}? This cannot be undone.')">
+      <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+    </form>
+  </div>
+</div>
+
+<div class="field-list">
+  <div class="field-row">
+    <span class="field-label">ID</span>
+    <span class="field-value">{{ lead.id }}</span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Status</span>
+    <span class="field-value"><span class="badge badge-{{ lead.status.value }}">{{ lead.status.value }}</span></span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Email</span>
+    <span class="field-value">
+      {% if lead.email %}<a href="mailto:{{ lead.email }}">{{ lead.email }}</a>{% else %}&mdash;{% endif %}
+    </span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">City</span>
+    <span class="field-value">{{ lead.city or '&mdash;' }}</span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Category</span>
+    <span class="field-value">{{ lead.category or '&mdash;' }}</span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Website</span>
+    <span class="field-value">
+      {% if lead.website %}<a href="{{ lead.website }}" target="_blank" rel="noopener">{{ lead.website }}</a>{% else %}&mdash;{% endif %}
+    </span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Phone</span>
+    <span class="field-value">{{ lead.phone or '&mdash;' }}</span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Source URL</span>
+    <span class="field-value">
+      {% if lead.source_url %}<a href="{{ lead.source_url }}" target="_blank" rel="noopener">{{ lead.source_url }}</a>{% else %}&mdash;{% endif %}
+    </span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Notes</span>
+    <span class="field-value" style="white-space:pre-wrap">{{ lead.notes or '&mdash;' }}</span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Created</span>
+    <span class="field-value">{{ lead.created_at.strftime('%Y-%m-%d %H:%M') if lead.created_at else '&mdash;' }}</span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Updated</span>
+    <span class="field-value">{{ lead.updated_at.strftime('%Y-%m-%d %H:%M') if lead.updated_at else '&mdash;' }}</span>
+  </div>
+</div>
+
+{% if lead.status.value != 'opted_out' %}
+<h2>Preview Email</h2>
+{% if templates_list %}
+<div class="filter-bar">
+  <label for="tpl-select">Template:</label>
+  <select id="tpl-select">
+    {% for t in templates_list %}
+    <option value="{{ t.id }}">{{ t.name }}</option>
+    {% endfor %}
+  </select>
+  <button class="btn btn-primary btn-sm"
+          onclick="window.location.href='/leads/{{ lead.id }}/preview/'+document.getElementById('tpl-select').value">
+    Preview &rarr;
+  </button>
+</div>
+{% else %}
+<p style="color:var(--muted)">No templates yet. <a href="/templates">Create one first.</a></p>
+{% endif %}
+{% else %}
+<div class="alert alert-warning">This lead has opted out &mdash; no emails will be sent.</div>
+{% endif %}
+
+<h2>Email Events</h2>
+{% if events %}
+<table>
+  <thead>
+    <tr><th>Event</th><th>Campaign ID</th><th>When</th></tr>
+  </thead>
+  <tbody>
+    {% for ev in events %}
+    <tr>
+      <td>{{ ev.event_type }}</td>
+      <td>{{ ev.campaign_id or '&mdash;' }}</td>
+      <td>{{ ev.created_at.strftime('%Y-%m-%d %H:%M') if ev.created_at else '&mdash;' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p style="color:var(--muted)">No events yet.</p>
+{% endif %}
+
+<h2>Tracking Links</h2>
+{% if tracking_links %}
+<table>
+  <thead>
+    <tr>
+      <th>Destination</th>
+      <th>Campaign</th>
+      <th>Created</th>
+      <th>Clicked</th>
+      <th>URL</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for tl in tracking_links %}
+    <tr>
+      <td><a href="{{ tl.destination_url }}" target="_blank" rel="noopener">{{ tl.destination_url }}</a></td>
+      <td>{{ tl.campaign_id or '&mdash;' }}</td>
+      <td>{{ tl.created_at.strftime('%Y-%m-%d %H:%M') if tl.created_at else '&mdash;' }}</td>
+      <td>
+        {% if tl.clicked_at %}
+        <span class="badge badge-replied">{{ tl.clicked_at.strftime('%Y-%m-%d %H:%M') }}</span>
+        {% else %}
+        <span class="badge badge-new">not yet</span>
+        {% endif %}
+      </td>
+      <td style="font-family:monospace;font-size:0.75rem">
+        <a href="/t/{{ tl.token }}">/t/{{ tl.token[:12] }}&hellip;</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p style="color:var(--muted)">No tracking links yet.</p>
+{% endif %}
+{% endblock %}

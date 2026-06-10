@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Preview &ndash; {{ lead.company_name }}{% endblock %}
+
+{% block content %}
+<a class="back-link" href="/leads/{{ lead.id }}">&larr; {{ lead.company_name }}</a>
+<h1>Email Preview</h1>
+
+<div class="field-list" style="margin-bottom:1.5rem">
+  <div class="field-row">
+    <span class="field-label">To</span>
+    <span class="field-value">{{ lead.email }}</span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Template</span>
+    <span class="field-value">{{ template.name }}</span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Subject</span>
+    <span class="field-value"><strong>{{ subject }}</strong></span>
+  </div>
+</div>
+
+<h2>Body</h2>
+<div class="preview-box">{{ body }}</div>
+
+<p class="note">Preview only &mdash; no email has been sent.</p>
+{% endblock %}

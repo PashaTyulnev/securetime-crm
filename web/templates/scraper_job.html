@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Job #{{ job.id }} – Outreach CRM{% endblock %}
+
+{% block content %}
+{% if job.status.value in ('pending', 'running') %}
+<meta http-equiv="refresh" content="3">
+{% endif %}
+
+<a class="back-link" href="/scraper">&larr; All Jobs</a>
+<h1>Scrape Job #{{ job.id }}</h1>
+
+<div class="field-list" style="margin-bottom:1.5rem;">
+  <div class="field-row">
+    <span class="field-label">Status</span>
+    <span class="field-value">
+      <span class="badge badge-job-{{ job.status.value }}">{{ job.status.value }}</span>
+    </span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Source</span>
+    <span class="field-value">{{ job.source }}</span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Cities</span>
+    <span class="field-value">{{ (job.cities_json or []) | join(', ') }}</span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Current city</span>
+    <span class="field-value">{{ job.current_city or '&mdash;' }}</span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Found</span>
+    <span class="field-value">{{ job.total_found }}</span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Imported</span>
+    <span class="field-value">{{ job.total_imported }}</span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Skipped</span>
+    <span class="field-value">{{ job.total_skipped }}</span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Failed</span>
+    <span class="field-value">{{ job.total_failed }}</span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Created</span>
+    <span class="field-value">{{ job.created_at.strftime('%Y-%m-%d %H:%M:%S') if job.created_at else '&mdash;' }}</span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Updated</span>
+    <span class="field-value">{{ job.updated_at.strftime('%Y-%m-%d %H:%M:%S') if job.updated_at else '&mdash;' }}</span>
+  </div>
+</div>
+
+<h2>Log</h2>
+<pre class="preview-box">{{ job.log_text or '(no log yet)' }}</pre>
+{% endblock %}

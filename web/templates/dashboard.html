@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – Outreach CRM{% endblock %}
+
+{% block content %}
+<h1>Dashboard</h1>
+<div class="stats">
+  <div class="stat-card">
+    <div class="value">{{ total_leads }}</div>
+    <div class="label">Total Leads</div>
+  </div>
+  <div class="stat-card">
+    <div class="value">{{ with_email }}</div>
+    <div class="label">Leads with Email</div>
+  </div>
+  <div class="stat-card">
+    <div class="value">{{ sent_count }}</div>
+    <div class="label">Emails Sent</div>
+  </div>
+  <div class="stat-card">
+    <div class="value">{{ opted_out }}</div>
+    <div class="label">Opted Out</div>
+  </div>
+</div>
+
+<h2>Quick links</h2>
+<p style="display:flex;gap:1rem;flex-wrap:wrap">
+  <a class="btn btn-primary btn-sm" href="/leads">View all leads</a>
+  <a class="btn btn-primary btn-sm" href="/templates">Manage templates</a>
+</p>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Templates – Outreach CRM{% endblock %}
+
+{% block content %}
+<h1>Email Templates</h1>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="form-card">
+  <h2 style="margin-top:0">New Template</h2>
+  <form method="post" action="/templates">
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" required
+             placeholder="cold_intro_v1">
+    </div>
+    <div class="form-group">
+      <label for="subject">Subject <span style="color:var(--muted);font-weight:400">(Jinja2)</span></label>
+      <input type="text" id="subject" name="subject" required
+             placeholder="Quick question for {{ company_name }}">
+    </div>
+    <div class="form-group">
+      <label for="body">Body <span style="color:var(--muted);font-weight:400">(Jinja2)</span></label>
+      <textarea id="body" name="body" required
+                placeholder="Hi {{ company_name }} team,&#10;&#10;...&#10;&#10;Best regards,&#10;{{ sender_name }}&#10;&#10;---&#10;To opt out reply with &quot;unsubscribe&quot;."></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Template</button>
+  </form>
+</div>
+
+<h2>Existing Templates</h2>
+<table>
+  <thead>
+    <tr><th>ID</th><th>Name</th><th>Subject</th><th>Body preview</th></tr>
+  </thead>
+  <tbody>
+    {% for t in templates_list %}
+    <tr>
+      <td>{{ t.id }}</td>
+      <td>{{ t.name }}</td>
+      <td>{{ t.subject }}</td>
+      <td style="font-family:ui-monospace,monospace;font-size:0.8em">
+        {{ t.body[:70] }}{% if t.body|length > 70 %}…{% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr class="empty-row"><td colspan="4">No templates yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

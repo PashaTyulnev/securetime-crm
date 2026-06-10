@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Scraper – Outreach CRM{% endblock %}
+
+{% block content %}
+<h1>Scraper</h1>
+
+<div class="form-card">
+  <h2>New Scrape Job</h2>
+  <p class="note" style="margin-bottom:1.25rem">
+    meinestadt.de Branchenbuch &mdash; Sicherheitsdienste. Job runs in the background;
+    you'll be taken to the live log immediately.
+  </p>
+  <form method="post" action="/scraper/start">
+    <div class="form-group">
+      <label for="cities">Cities (comma-separated slugs)</label>
+      <input type="text" id="cities" name="cities" value="{{ default_cities }}" required>
+    </div>
+    <div class="form-group">
+      <label for="limit_per_city">Limit per city</label>
+      <input type="number" id="limit_per_city" name="limit_per_city" value="20" min="1" max="200">
+    </div>
+    <div class="form-group">
+      <label for="keywords">Name filter keywords <span class="hint">(comma-separated; empty = no filter)</span></label>
+      <input type="text" id="keywords" name="keywords" value="security,sicherheit,secur,wach"
+             placeholder="security,sicherheit,secur,wach">
+    </div>
+    <button type="submit" class="btn btn-primary">Start Scrape</button>
+  </form>
+</div>
+
+<h2>Recent Jobs</h2>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Source</th>
+      <th>Cities</th>
+      <th>Status</th>
+      <th>Found</th>
+      <th>Imported</th>
+      <th>Skipped</th>
+      <th>Failed</th>
+      <th>Created</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for job in jobs %}
+    <tr>
+      <td><a href="/scraper/jobs/{{ job.id }}">{{ job.id }}</a></td>
+      <td>{{ job.source }}</td>
+      <td>{{ (job.cities_json or []) | join(', ') }}</td>
+      <td><span class="badge badge-job-{{ job.status.value }}">{{ job.status.value }}</span></td>
+      <td>{{ job.total_found }}</td>
+      <td>{{ job.total_imported }}</td>
+      <td>{{ job.total_skipped }}</td>
+      <td>{{ job.total_failed }}</td>
+      <td>{{ job.created_at.strftime('%Y-%m-%d %H:%M') if job.created_at else '&mdash;' }}</td>
+    </tr>
+    {% else %}
+    <tr class="empty-row"><td colspan="9">No scrape jobs yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

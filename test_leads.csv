@@ -1,0 +1,4 @@
+company_name,city,category,website,email,phone,source_url,notes
+Wachschutz Müller,Dresden,Privater Wachdienst & Sicherheitsdienst,https://www.example-security.de,info@example-security.de,0351 123456,https://example.com/test,Testimport
+Sicherheitsdienst Alpha,Leipzig,Privater Wachdienst & Sicherheitsdienst,https://alpha-security.de,,0341 555555,https://example.com/test2,Ohne E-Mail
+Wachschutz Müller,Dresden,Privater Wachdienst & Sicherheitsdienst,https://www.example-security.de,info@example-security.de,0351 123456,https://example.com/test,Duplikat

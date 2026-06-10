@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Dry Run &ndash; Campaign {{ campaign.id }}{% endblock %}
+
+{% block content %}
+<h1>Campaign {{ campaign.id }} &ndash; {{ campaign.name }}</h1>
+<p class="note" style="margin-bottom:1.75rem">Dry run &mdash; no emails will be sent and no lead statuses will change.</p>
+
+<div class="stats" style="margin-bottom:2rem">
+  <div class="stat-card">
+    <div class="value">{{ summary.total_eligible }}</div>
+    <div class="label">Eligible leads</div>
+  </div>
+  <div class="stat-card">
+    <div class="value">{{ summary.previewed }}</div>
+    <div class="label">Would send</div>
+  </div>
+  <div class="stat-card">
+    <div class="value">{{ summary.daily_remaining }}</div>
+    <div class="label">Daily slots remaining</div>
+  </div>
+  <div class="stat-card">
+    <div class="value">{{ summary.hourly_remaining }}</div>
+    <div class="label">Hourly slots remaining</div>
+  </div>
+</div>
+
+{% if previews %}
+<h2>Preview</h2>
+<table>
+  <thead>
+    <tr><th>Lead</th><th>Email</th><th>Subject</th><th>Body (first 150 chars)</th></tr>
+  </thead>
+  <tbody>
+    {% for p in previews %}
+    <tr>
+      <td><a href="/leads/{{ p.lead_id }}">{{ p.lead_id }}</a></td>
+      <td>{{ p.email }}</td>
+      <td>{{ p.subject }}</td>
+      <td style="font-family:ui-monospace,monospace;font-size:0.8em;white-space:pre-wrap">{{ p.body_preview[:150] }}{% if p.body_preview|length > 150 %}&hellip;{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p style="color:var(--muted)">
+  {% if summary.total_eligible > 0 %}
+    All rate limit slots used for today / this hour.
+  {% else %}
+    No eligible leads (status=new with a non-empty email).
+  {% endif %}
+</p>
+{% endif %}
+{% endblock %}

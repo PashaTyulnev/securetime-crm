@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Leads – Outreach CRM{% endblock %}
+
+{% block content %}
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.75rem">
+  <h1 style="margin-bottom:0">
+    Leads
+    <span style="font-size:0.85rem;font-weight:400;color:var(--muted)">({{ total }})</span>
+  </h1>
+  <a href="/leads/new" class="btn btn-primary btn-sm">+ New lead</a>
+</div>
+
+<div class="filter-bar">
+  <label for="status-filter">Status:</label>
+  <select id="status-filter"
+          onchange="window.location.href='/leads'+(this.value?'?status='+this.value:'')">
+    <option value="">All</option>
+    {% for s in statuses %}
+    <option value="{{ s }}"{% if s == current_status %} selected{% endif %}>{{ s }}</option>
+    {% endfor %}
+  </select>
+  {% if current_status %}<a href="/leads">Clear</a>{% endif %}
+</div>
+
+<form id="bulk-form" method="post" action="/leads/bulk-delete"
+      onsubmit="return confirmBulkDelete()">
+  <input type="hidden" name="status_filter" value="{{ current_status or '' }}">
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:2.5rem;text-align:center;padding-left:0.75rem">
+          <input type="checkbox" id="select-all" title="Select all on this page">
+        </th>
+        <th>ID</th>
+        <th>Company</th>
+        <th>City</th>
+        <th>Email</th>
+        <th>Website</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for lead in leads %}
+      <tr>
+        <td style="text-align:center;padding-left:0.75rem">
+          <input type="checkbox" name="ids" value="{{ lead.id }}" class="row-check">
+        </td>
+        <td><a href="/leads/{{ lead.id }}">{{ lead.id }}</a></td>
+        <td><a href="/leads/{{ lead.id }}">{{ lead.company_name }}</a></td>
+        <td>{{ lead.city or '&mdash;' }}</td>
+        <td>
+          {% if lead.email %}<a href="mailto:{{ lead.email }}">{{ lead.email }}</a>
+          {% else %}&mdash;{% endif %}
+        </td>
+        <td>
+          {% if lead.website %}
+          <a href="{{ lead.website }}" target="_blank" rel="noopener">{{ lead.website }}</a>
+          {% else %}&mdash;{% endif %}
+        </td>
+        <td><span class="badge badge-{{ lead.status.value }}">{{ lead.status.value }}</span></td>
+      </tr>
+      {% else %}
+      <tr class="empty-row"><td colspan="7">No leads found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="bulk-bar" id="bulk-bar">
+    <span id="bulk-count">0 selected</span>
+    <button type="submit" class="btn btn-danger btn-sm">Delete selected</button>
+  </div>
+</form>
+
+{% if total_pages > 1 %}
+{% set qs = '?status=' + current_status + '&' if current_status else '?' %}
+<nav class="pagination">
+  {% if page > 1 %}
+  <a href="/leads{{ qs }}page={{ page - 1 }}" class="page-btn">&larr;</a>
+  {% else %}
+  <span class="page-btn page-btn--disabled">&larr;</span>
+  {% endif %}
+
+  {% for p in page_range %}
+  {% if p is none %}
+  <span class="page-btn page-btn--ellipsis">&hellip;</span>
+  {% elif p == page %}
+  <span class="page-btn page-btn--current">{{ p }}</span>
+  {% else %}
+  <a href="/leads{{ qs }}page={{ p }}" class="page-btn">{{ p }}</a>
+  {% endif %}
+  {% endfor %}
+
+  {% if page < total_pages %}
+  <a href="/leads{{ qs }}page={{ page + 1 }}" class="page-btn">&rarr;</a>
+  {% else %}
+  <span class="page-btn page-btn--disabled">&rarr;</span>
+  {% endif %}
+</nav>
+{% endif %}
+
+<script>
+(function () {
+  const selectAll = document.getElementById('select-all');
+  const bulkBar   = document.getElementById('bulk-bar');
+  const bulkCount = document.getElementById('bulk-count');
+
+  function allChecks()     { return document.querySelectorAll('.row-check'); }
+  function checkedChecks() { return document.querySelectorAll('.row-check:checked'); }
+
+  function update() {
+    const all = allChecks().length;
+    const on  = checkedChecks().length;
+    bulkCount.textContent = on + ' selected';
+    bulkBar.classList.toggle('bulk-bar--visible', on > 0);
+    selectAll.indeterminate = on > 0 && on < all;
+    selectAll.checked = all > 0 && on === all;
+  }
+
+  selectAll.addEventListener('change', function () {
+    allChecks().forEach(function (cb) { cb.checked = selectAll.checked; });
+    update();
+  });
+
+  allChecks().forEach(function (cb) { cb.addEventListener('change', update); });
+}());
+
+function confirmBulkDelete() {
+  var n = document.querySelectorAll('.row-check:checked').length;
+  if (n === 0) return false;
+  return confirm('Delete ' + n + ' lead' + (n === 1 ? '' : 's') + '? This cannot be undone.');
+}
+</script>
+{% endblock %}
